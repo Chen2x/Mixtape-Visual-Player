@@ -10,6 +10,9 @@ FFT spectrum;
 String [] song = {"pt1.mp3", "pt2.mp3", "crookeddreams.mp3", "yah.mp3", "wasabi.mp3", "interlude.mp3", "crazy.mp3"};
 PImage cover;
 int txtsz = 30;
+boolean pause =false;
+int current = 0;
+String a;
 
 void setup()
 {
@@ -22,32 +25,33 @@ void setup()
 }
 
 void draw() { 
-  image(cover, 0, 0);
-  fill(40, 40, 40, 70);
-  rect(0, 0, width, height);
-  println(meta.length());
-  
+  back();
   isPlaying();
   spectrum.forward(player.mix);
   freq();
   nextSong();
+  currentSong();
+}
 
-
+void currentSong() {
   textSize(30);
   fill(255);
-  
+
   ellipse(130, 90+txtsz*current, 10, 10);
   for (int i = 0; i < song.length; i++) {
     stroke(0);
-    text(i+1+") "+ song[i].substring(0, song[i].length() - 4), 150, 100 + txtsz*i);
-    //text(i+1+")"+ "????????", 150, 100 + 40*i);
+    //text(i+1+") "+ song[i].substring(0, song[i].length() - 4), 150, 100 + txtsz*i);
+    text(i+1+")"+ "????????", 150, 100 + 40*i);
   }
 }
 
 
-
-boolean pause =false;
-
+void back() {
+  image(cover, 0, 0);
+  fill(40, 40, 40, 70);
+  rect(0, 0, width, height);
+  println(meta.length()%100);
+}
 void isPlaying() {
   if (pause == true) {
     player.pause();
@@ -56,19 +60,19 @@ void isPlaying() {
   }
 }
 
-void nextSong(){
+void nextSong() {
   if ((!player.isPlaying() && !pause) && (current < song.length - 1)) {
     player.pause();
     current+=1;
     player = minim.loadFile( song[current], 2048);
-    player.play();    
+    player.play();
   }
   if (current < 0) {
     current = song.length-1;
   }
 }
 
-void freq(){
+void freq() {
   stroke(255);
   strokeWeight(4);
   fill(255);
@@ -81,8 +85,7 @@ void freq(){
   }
 }
 
-int current = 0;
-String a;
+
 
 void keyReleased() {
   //songChange();
