@@ -7,12 +7,15 @@ AudioMetaData meta;
 BeatDetect beat;
 FFT spectrum;
 
-String [] song = {"pt1.mp3", "pt2.mp3", "crookeddreams.mp3", "yah.mp3", "wasabi.mp3", "interlude.mp3", "crazy.mp3"};
+String [] song = {"straight from the start.mp3", "pt1.mp3", "pt2.mp3", "crookeddreams.mp3", "yah.mp3", "wasabi.mp3", "interlude.mp3", "crazy.mp3"};
 PImage cover;
 int txtsz = 30;
 boolean pause =false;
 int current = 0;
+int past = 0;
 String a;
+boolean rep = false;
+boolean shuf = false;
 
 void setup()
 {
@@ -31,6 +34,8 @@ void draw() {
   freq();
   nextSong();
   currentSong();
+  println("shuf", "c  p", "pause");
+  println(shuf, current, past, pause);
 }
 
 void currentSong() {
@@ -41,7 +46,7 @@ void currentSong() {
   for (int i = 0; i < song.length; i++) {
     stroke(0);
     //text(i+1+") "+ song[i].substring(0, song[i].length() - 4), 150, 100 + txtsz*i);
-    text(i+1+")"+ "????????", 150, 100 + 40*i);
+    text(i+1+")"+ "????????", 150, 100 + txtsz*i);
   }
 }
 
@@ -50,7 +55,6 @@ void back() {
   image(cover, 0, 0);
   fill(40, 40, 40, 70);
   rect(0, 0, width, height);
-  println(meta.length()%100);
 }
 void isPlaying() {
   if (pause == true) {
@@ -61,12 +65,22 @@ void isPlaying() {
 }
 
 void nextSong() {
-  if ((!player.isPlaying() && !pause) && (current < song.length - 1)) {
+  if (((!player.isPlaying() && !pause) && (!shuf))) {
     player.pause();
-    current+=1;
+    if (!shuf){
+      current+=1;
+    }
+    else{
+      past = current;
+      //println("works");
+      while (past == current){
+        current = int(random(0.0, float(song.length)));
+      }
+      past = current;
+    }
     player = minim.loadFile( song[current], 2048);
     player.play();
-  }
+  } 
   if (current < 0) {
     current = song.length-1;
   }
@@ -96,9 +110,19 @@ void keyReleased() {
   }
   if ((keyCode == DOWN) || (keyCode == RIGHT)) {
     player.pause();
-    current+= 1;
-    if (current > song.length-1) {
-      current = 0;
+    if (!shuf){
+      current+=1;
+    }
+    else{
+      past = current;
+      //println("works");
+      while (past == current){
+        current = int(random(0.0, float(song.length)));
+      }
+      past = current;
+    }
+    if (current < 0) {
+      current = song.length-1;
     }
     a = song[current];
     player = minim.loadFile( a, 2048);
@@ -115,6 +139,23 @@ void keyReleased() {
     player.play();
   }
   if (keyCode == LEFT) {
+    player.pause();
+    a = song[current];
+    player = minim.loadFile( a, 2048);
+    player.play();
+  }
+  //shuffle
+  if ((key == 's') && (!shuf)){
+    shuf = true;
+  } 
+  else if ((key == 's') && (shuf)){
+    shuf = false;
+  }
+}
+
+void repeat() {
+  if (((rep) && (current == song.length - 1)) && (!player.isPlaying())) {
+    current = 0;
     player.pause();
     a = song[current];
     player = minim.loadFile( a, 2048);
